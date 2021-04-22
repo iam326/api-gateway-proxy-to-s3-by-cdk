@@ -7,7 +7,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const projectName = 'api-gateway-proxy-to-s3';
+    const projectName: string = this.node.tryGetContext('projectName');
 
     const bucket = new s3.Bucket(this, 'Bucket', {
       bucketName: `${projectName}-bucket`,
