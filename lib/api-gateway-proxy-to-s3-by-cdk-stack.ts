@@ -26,20 +26,22 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       },
     });
 
-    const folder = restApi.root.addResource('{folder}');
-    const item = folder.addResource('{item}');
-    item.addMethod(
+    const users = restApi.root.addResource('users');
+    const userId = users.addResource('{userId}');
+    const images = userId.addResource('images');
+    const fileName = images.addResource('{fileName}');
+    fileName.addMethod(
       'GET',
       new apigateway.AwsIntegration({
         service: 's3',
         integrationHttpMethod: 'GET',
-        path: '{bucket}/{object}',
+        path: `${bucket.bucketName}/{folder}/{object}`,
         options: {
           credentialsRole: restApiRole,
           passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
           requestParameters: {
-            'integration.request.path.object': 'method.request.path.item',
-            'integration.request.path.bucket': 'method.request.path.folder',
+            'integration.request.path.folder': 'method.request.path.userId',
+            'integration.request.path.object': 'method.request.path.fileName',
           },
           integrationResponses: [
             {
@@ -66,8 +68,8 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       }),
       {
         requestParameters: {
-          'method.request.path.item': true,
-          'method.request.path.folder': true,
+          'method.request.path.userId': true,
+          'method.request.path.fileName': true,
         },
         methodResponses: [
           {
