@@ -24,6 +24,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       deployOptions: {
         stageName: 'v1',
       },
+      binaryMediaTypes: ['image/*'],
     });
 
     const users = restApi.root.addResource('users');
@@ -40,6 +41,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
           credentialsRole: restApiRole,
           passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
           requestParameters: {
+            'integration.request.header.Accept': 'method.request.header.Accept',
             'integration.request.path.folder': 'method.request.path.userId',
             'integration.request.path.object': 'method.request.path.fileName',
           },
@@ -68,6 +70,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       }),
       {
         requestParameters: {
+          'method.request.header.Accept': true,
           'method.request.path.userId': true,
           'method.request.path.fileName': true,
         },
