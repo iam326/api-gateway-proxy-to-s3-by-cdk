@@ -163,5 +163,65 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
         ],
       }
     );
+
+    fileName.addMethod(
+      'DELETE',
+      new apigateway.AwsIntegration({
+        service: 's3',
+        integrationHttpMethod: 'DELETE',
+        path: `${bucket.bucketName}/{folder}/{object}`,
+        options: {
+          credentialsRole: restApiRole,
+          passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+          requestParameters: {
+            'integration.request.path.folder': 'method.request.path.userId',
+            'integration.request.path.object': 'method.request.path.fileName',
+          },
+          integrationResponses: [
+            {
+              statusCode: '200',
+              responseParameters: {
+                'method.response.header.Timestamp':
+                  'integration.response.header.Date',
+                'method.response.header.Content-Length':
+                  'integration.response.header.Content-Length',
+                'method.response.header.Content-Type':
+                  'integration.response.header.Content-Type',
+              },
+            },
+            {
+              statusCode: '400',
+              selectionPattern: '4\\d{2}',
+            },
+            {
+              statusCode: '500',
+              selectionPattern: '5\\d{2}',
+            },
+          ],
+        },
+      }),
+      {
+        requestParameters: {
+          'method.request.path.userId': true,
+          'method.request.path.fileName': true,
+        },
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Timestamp': true,
+              'method.response.header.Content-Length': true,
+              'method.response.header.Content-Type': true,
+            },
+          },
+          {
+            statusCode: '400',
+          },
+          {
+            statusCode: '500',
+          },
+        ],
+      }
+    );
   }
 }
