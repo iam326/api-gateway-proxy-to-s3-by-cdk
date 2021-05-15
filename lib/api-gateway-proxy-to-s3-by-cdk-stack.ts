@@ -26,6 +26,11 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
       },
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: ['POST', 'OPTIONS', 'PUT', 'DELETE'],
+        statusCode: 200,
+      },
       binaryMediaTypes: ['image/*'],
     });
 
