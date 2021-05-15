@@ -36,8 +36,8 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
 
     const users = restApi.root.addResource('users');
     const userId = users.addResource('{userId}');
-    const images = userId.addResource('images');
-    const fileName = images.addResource('{fileName}');
+    const files = userId.addResource('files');
+    const fileName = files.addResource('{fileName}');
     fileName.addMethod(
       'GET',
       new apigateway.AwsIntegration({
