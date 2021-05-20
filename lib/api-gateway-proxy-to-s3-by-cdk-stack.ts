@@ -17,7 +17,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       path: '/',
     });
-    bucket.grantRead(restApiRole);
+    bucket.grantReadWrite(restApiRole);
 
     const restApi = new apigateway.RestApi(this, 'RestApi', {
       restApiName: `${projectName}-api`,
@@ -38,6 +38,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
     const userId = users.addResource('{userId}');
     const files = userId.addResource('files');
     const fileName = files.addResource('{fileName}');
+
     fileName.addMethod(
       'GET',
       new apigateway.AwsIntegration({
@@ -78,6 +79,69 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
       {
         requestParameters: {
           'method.request.header.Accept': true,
+          'method.request.path.userId': true,
+          'method.request.path.fileName': true,
+        },
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Timestamp': true,
+              'method.response.header.Content-Length': true,
+              'method.response.header.Content-Type': true,
+            },
+          },
+          {
+            statusCode: '400',
+          },
+          {
+            statusCode: '500',
+          },
+        ],
+      }
+    );
+
+    fileName.addMethod(
+      'PUT',
+      new apigateway.AwsIntegration({
+        service: 's3',
+        integrationHttpMethod: 'PUT',
+        path: `${bucket.bucketName}/{folder}/{object}`,
+        options: {
+          credentialsRole: restApiRole,
+          passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+          requestParameters: {
+            'integration.request.header.Content-Type':
+              'method.request.header.Content-Type',
+            'integration.request.path.folder': 'method.request.path.userId',
+            'integration.request.path.object': 'method.request.path.fileName',
+          },
+          integrationResponses: [
+            {
+              statusCode: '200',
+              responseParameters: {
+                'method.response.header.Timestamp':
+                  'integration.response.header.Date',
+                'method.response.header.Content-Length':
+                  'integration.response.header.Content-Length',
+                'method.response.header.Content-Type':
+                  'integration.response.header.Content-Type',
+              },
+            },
+            {
+              statusCode: '400',
+              selectionPattern: '4\\d{2}',
+            },
+            {
+              statusCode: '500',
+              selectionPattern: '5\\d{2}',
+            },
+          ],
+        },
+      }),
+      {
+        requestParameters: {
+          'method.request.header.Content-Type': true,
           'method.request.path.userId': true,
           'method.request.path.fileName': true,
         },
