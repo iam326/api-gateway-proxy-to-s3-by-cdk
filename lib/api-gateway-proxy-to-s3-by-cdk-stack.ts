@@ -46,7 +46,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
         path: bucket.bucketName,
         options: {
           credentialsRole: restApiRole,
-          passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+          passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
           integrationResponses: [
             {
               statusCode: '200',
