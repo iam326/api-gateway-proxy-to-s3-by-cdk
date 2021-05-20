@@ -63,7 +63,6 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
                 'method.response.header.Content-Type':
                   'integration.response.header.Content-Type',
               },
-              contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
             },
             {
               statusCode: '400',
