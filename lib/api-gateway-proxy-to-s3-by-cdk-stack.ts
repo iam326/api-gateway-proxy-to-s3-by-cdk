@@ -37,6 +37,63 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
     const users = restApi.root.addResource('users');
     const userId = users.addResource('{userId}');
     const files = userId.addResource('files');
+
+    files.addMethod(
+      'GET',
+      new apigateway.AwsIntegration({
+        service: 's3',
+        integrationHttpMethod: 'GET',
+        path: bucket.bucketName,
+        options: {
+          credentialsRole: restApiRole,
+          passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+          integrationResponses: [
+            {
+              statusCode: '200',
+              responseParameters: {
+                'method.response.header.Timestamp':
+                  'integration.response.header.Date',
+                'method.response.header.Content-Length':
+                  'integration.response.header.Content-Length',
+                'method.response.header.Content-Type':
+                  'integration.response.header.Content-Type',
+              },
+            },
+            {
+              statusCode: '400',
+              selectionPattern: '4\\d{2}',
+            },
+            {
+              statusCode: '500',
+              selectionPattern: '5\\d{2}',
+            },
+          ],
+          requestTemplates: {
+            'application/json': `#set($context.requestOverride.querystring.prefix = "$input.params('userId')/")
+#set($context.requestOverride.querystring.delimiter = "/")`,
+          },
+        },
+      }),
+      {
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Timestamp': true,
+              'method.response.header.Content-Length': true,
+              'method.response.header.Content-Type': true,
+            },
+          },
+          {
+            statusCode: '400',
+          },
+          {
+            statusCode: '500',
+          },
+        ],
+      }
+    );
+
     const fileName = files.addResource('{fileName}');
 
     fileName.addMethod(
