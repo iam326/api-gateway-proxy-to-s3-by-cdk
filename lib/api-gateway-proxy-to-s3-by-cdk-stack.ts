@@ -37,6 +37,42 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
     const users = restApi.root.addResource('users');
     const userId = users.addResource('{userId}');
     const files = userId.addResource('files');
+    const fileName = files.addResource('{fileName}');
+
+    const integrationResponses = [
+      {
+        statusCode: '200',
+        responseParameters: {
+          'method.response.header.Timestamp':
+            'integration.response.header.Date',
+          'method.response.header.Content-Length':
+            'integration.response.header.Content-Length',
+          'method.response.header.Content-Type':
+            'integration.response.header.Content-Type',
+        },
+      },
+      {
+        statusCode: '400',
+        selectionPattern: '4\\d{2}',
+      },
+      {
+        statusCode: '500',
+        selectionPattern: '5\\d{2}',
+      },
+    ];
+
+    const methodResponses = [
+      {
+        statusCode: '200',
+        responseParameters: {
+          'method.response.header.Timestamp': true,
+          'method.response.header.Content-Length': true,
+          'method.response.header.Content-Type': true,
+        },
+      },
+      { statusCode: '400' },
+      { statusCode: '500' },
+    ];
 
     files.addMethod(
       'GET',
@@ -47,54 +83,15 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
         options: {
           credentialsRole: restApiRole,
           passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
-          integrationResponses: [
-            {
-              statusCode: '200',
-              responseParameters: {
-                'method.response.header.Timestamp':
-                  'integration.response.header.Date',
-                'method.response.header.Content-Length':
-                  'integration.response.header.Content-Length',
-                'method.response.header.Content-Type':
-                  'integration.response.header.Content-Type',
-              },
-            },
-            {
-              statusCode: '400',
-              selectionPattern: '4\\d{2}',
-            },
-            {
-              statusCode: '500',
-              selectionPattern: '5\\d{2}',
-            },
-          ],
+          integrationResponses,
           requestTemplates: {
             'application/json': `#set($context.requestOverride.querystring.prefix = "$input.params('userId')/")
 #set($context.requestOverride.querystring.delimiter = "/")`,
           },
         },
       }),
-      {
-        methodResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Timestamp': true,
-              'method.response.header.Content-Length': true,
-              'method.response.header.Content-Type': true,
-            },
-          },
-          {
-            statusCode: '400',
-          },
-          {
-            statusCode: '500',
-          },
-        ],
-      }
+      { methodResponses }
     );
-
-    const fileName = files.addResource('{fileName}');
 
     fileName.addMethod(
       'GET',
@@ -110,27 +107,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
             'integration.request.path.folder': 'method.request.path.userId',
             'integration.request.path.object': 'method.request.path.fileName',
           },
-          integrationResponses: [
-            {
-              statusCode: '200',
-              responseParameters: {
-                'method.response.header.Timestamp':
-                  'integration.response.header.Date',
-                'method.response.header.Content-Length':
-                  'integration.response.header.Content-Length',
-                'method.response.header.Content-Type':
-                  'integration.response.header.Content-Type',
-              },
-            },
-            {
-              statusCode: '400',
-              selectionPattern: '4\\d{2}',
-            },
-            {
-              statusCode: '500',
-              selectionPattern: '5\\d{2}',
-            },
-          ],
+          integrationResponses,
         },
       }),
       {
@@ -139,22 +116,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
           'method.request.path.userId': true,
           'method.request.path.fileName': true,
         },
-        methodResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Timestamp': true,
-              'method.response.header.Content-Length': true,
-              'method.response.header.Content-Type': true,
-            },
-          },
-          {
-            statusCode: '400',
-          },
-          {
-            statusCode: '500',
-          },
-        ],
+        methodResponses,
       }
     );
 
@@ -173,27 +135,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
             'integration.request.path.folder': 'method.request.path.userId',
             'integration.request.path.object': 'method.request.path.fileName',
           },
-          integrationResponses: [
-            {
-              statusCode: '200',
-              responseParameters: {
-                'method.response.header.Timestamp':
-                  'integration.response.header.Date',
-                'method.response.header.Content-Length':
-                  'integration.response.header.Content-Length',
-                'method.response.header.Content-Type':
-                  'integration.response.header.Content-Type',
-              },
-            },
-            {
-              statusCode: '400',
-              selectionPattern: '4\\d{2}',
-            },
-            {
-              statusCode: '500',
-              selectionPattern: '5\\d{2}',
-            },
-          ],
+          integrationResponses,
         },
       }),
       {
@@ -202,22 +144,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
           'method.request.path.userId': true,
           'method.request.path.fileName': true,
         },
-        methodResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Timestamp': true,
-              'method.response.header.Content-Length': true,
-              'method.response.header.Content-Type': true,
-            },
-          },
-          {
-            statusCode: '400',
-          },
-          {
-            statusCode: '500',
-          },
-        ],
+        methodResponses,
       }
     );
 
@@ -234,27 +161,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
             'integration.request.path.folder': 'method.request.path.userId',
             'integration.request.path.object': 'method.request.path.fileName',
           },
-          integrationResponses: [
-            {
-              statusCode: '200',
-              responseParameters: {
-                'method.response.header.Timestamp':
-                  'integration.response.header.Date',
-                'method.response.header.Content-Length':
-                  'integration.response.header.Content-Length',
-                'method.response.header.Content-Type':
-                  'integration.response.header.Content-Type',
-              },
-            },
-            {
-              statusCode: '400',
-              selectionPattern: '4\\d{2}',
-            },
-            {
-              statusCode: '500',
-              selectionPattern: '5\\d{2}',
-            },
-          ],
+          integrationResponses,
         },
       }),
       {
@@ -262,22 +169,7 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
           'method.request.path.userId': true,
           'method.request.path.fileName': true,
         },
-        methodResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Timestamp': true,
-              'method.response.header.Content-Length': true,
-              'method.response.header.Content-Type': true,
-            },
-          },
-          {
-            statusCode: '400',
-          },
-          {
-            statusCode: '500',
-          },
-        ],
+        methodResponses,
       }
     );
   }
