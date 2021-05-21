@@ -39,6 +39,14 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
     const files = userId.addResource('files');
     const fileName = files.addResource('{fileName}');
 
+    const integrationResponseParametersOfCors = {
+      'method.response.header.Access-Control-Allow-Headers':
+        "'Content-Type,Authorization'",
+      'method.response.header.Access-Control-Allow-Methods':
+        "'OPTIONS,POST,PUT,GET,DELETE'",
+      'method.response.header.Access-Control-Allow-Origin': "'*'",
+    };
+
     const integrationResponses = [
       {
         statusCode: '200',
@@ -49,17 +57,26 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
             'integration.response.header.Content-Length',
           'method.response.header.Content-Type':
             'integration.response.header.Content-Type',
+          ...integrationResponseParametersOfCors,
         },
       },
       {
         statusCode: '400',
         selectionPattern: '4\\d{2}',
+        responseParameters: integrationResponseParametersOfCors,
       },
       {
         statusCode: '500',
         selectionPattern: '5\\d{2}',
+        responseParameters: integrationResponseParametersOfCors,
       },
     ];
+
+    const methodResponseParametersOfCors = {
+      'method.response.header.Access-Control-Allow-Headers': true,
+      'method.response.header.Access-Control-Allow-Methods': true,
+      'method.response.header.Access-Control-Allow-Origin': true,
+    };
 
     const methodResponses = [
       {
@@ -68,10 +85,17 @@ export class ApiGatewayProxyToS3ByCdkStack extends cdk.Stack {
           'method.response.header.Timestamp': true,
           'method.response.header.Content-Length': true,
           'method.response.header.Content-Type': true,
+          ...methodResponseParametersOfCors,
         },
       },
-      { statusCode: '400' },
-      { statusCode: '500' },
+      {
+        statusCode: '400',
+        responseParameters: methodResponseParametersOfCors,
+      },
+      {
+        statusCode: '500',
+        responseParameters: methodResponseParametersOfCors,
+      },
     ];
 
     files.addMethod(
