@@ -1,14 +1,23 @@
-# Welcome to your CDK TypeScript project!
+# api-gateway-proxy-to-s3-by-cdk
 
-This is a blank project for TypeScript development with CDK.
+API Gateway で S3 をプロキシして、CRUD する REST API を CDK で作成してみた
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Environment
 
-## Useful commands
+```
+$ cdk --version
+1.102.0 (build a75d52f)
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+$ yarn --version
+1.22.10
+
+$ node --version
+v14.7.0
+```
+
+## Deploy
+
+```
+$ cdk bootstrap
+$ yarn deploy
+```
